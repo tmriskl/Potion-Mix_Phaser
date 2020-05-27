@@ -1,5 +1,5 @@
 import 'phaser';
-import MenuScene from './MenuScene.js'
+import MenuScene from './MenuScene.js';
 
 var config = {
     type: Phaser.AUTO,
@@ -25,78 +25,92 @@ function preload ()
     this.load.image('Spin_Button', 'assets/button_spin.png');
     this.load.image('Stop_Button', 'assets/button_stop.png');
     this.load.audio('BG_music', 'assets/BG_Music.wav');
+    this.load.audio('spin', 'assets/spin.wav');
     this.load.image('BG_image', 'assets/Potion_Lab.jpg');
     this.load.image('slotContainer', 'assets/slotContainer.png');
 }
 
 
-var buttonStatus = 0;
-var potions = [[],[],[],[],[]];
-var sX = 138; //starting point on X graph
-var sY = 140; //starting point on Y graph
-var mX = 138.5; //distance multoplayer for X graph
-var mY = 138.5; //distance multoplayer for Y graph
-var mY2 = [0,1,2,10];
-var spinning = [false,false,false,false,false];
+var buttonStatus = 0;//to different between the button actions
+var potions = [[],[],[],[],[]];//array for the pictures in the slot machine
+var sX = 138;     //Starting point on X graph
+var sY = 140;     //Starting point on Y graph
+var mX = 138.5;     //Distance multoplayer for X graph
+var mY = 138.5;     //Distance multoplayer for Y graph
+var mY2 = [0,1,2,10];   //Position multiplayer for row i in the screen
+var spinning = [false,false,false,false,false]; //Enables a column to spin
 var colNum = 5, rowNum = 4;
-var currentCol = 0;
-var currentOffset = 0;
+var currentOffset = 0;  //Offset for current position for all rows
+var resaultOffset=[];   //Offset for resault position for each rows
+var music = game.sound; //Sound activator
+var random = new Phaser.Math.RandomDataGenerator();//random generator
+var canClick = false; //boolean to make the user do a full 'click'
 
 function create ()
 {
   //Adding background image and music
-    //var music = game.sound.play('BG_music');
+
+    // music.play('BG_music');
+    // music.loop = true;
     var background = this.add.image(500, 350, 'BG_image').setDepth(0);
 
   //Adding and initialising slot machine and buttons
-    var slot_Machine = this.add.image(395, 250, 'slotContainer').setDepth(1);
-    var stop_Button = this.add.image(600, 550, 'Stop_Button').setDepth(3);
-    var spin_Button = this.add.image(600, 550, 'Spin_Button',).setDepth(2);
-    stop_Button.alpha = 0;
-    spin_Button.alpha = 1;
+    var slotMachine = this.add.image(395, 250, 'slotContainer').setDepth(1);
+    var stopButton = this.add.image(600, 550, 'Stop_Button').setDepth(3);
+    var spinButton = this.add.image(600, 550, 'Spin_Button',).setDepth(2);
+    stopButton.alpha = 0;
+    spinButton.alpha = 1;
 
-    spin_Button.setInteractive();
+    spinButton.setInteractive();
 
 
-    // spin_Button.on("pointerover", ()=>{
-    //   spin_Button.alpha = 1
+    // spinButton.on("pointerover", ()=>{
     // })
-    //
-    // spin_Button.on("pointerout", ()=>{
-    //   spin_Button.alpha = 0.5
-    // })
+
+    spinButton.on("pointerout", ()=>{
+      canClick=false;
+    })
+
+    spinButton.on("pointerdown", ()=>{
+      canClick=true;
+    })
+
+    setResault();
 
     for(var i = 0;i<colNum;i++){
       for(var j = 0;j<rowNum;j++){
-          potions[i][j]= this.add.image(sX+mX*i, sY+mY*mY2[j], 'potion'+(j+1)).setDepth(2);
+          potions[i][j]= this.add.image(sX+mX*i, sY+mY*mY2[(resaultOffset[i]+j)%4], 'potion'+(j+1)).setDepth(2);
       }
     }
 
-    spin_Button.on("pointerup", ()=>{
-      if(buttonStatus == 0){
-          spin_Button.alpha = 0.5;
-          buttonStatus = 3;
-          // for(var i = 0;i<colNum;i++){
-          //     for(var j = 0;j<rowNum;j++){
-          //        potions[i][j].body.velocity.x=sY+mY*mY2[(j+1)%4];
-          //     }
-          // }
-          buttonStatus1();
-          // game.time.events.add(Timer.SECOND * 1, buttonStatus1, this);
-      }
-      else if(buttonStatus == 1){
-          stop_Button.alpha = 1
-          currentCol=0;
-          buttonStatus2();
-      }
-      else if(buttonStatus == 2){
-          spinning[currentCol] = false;
-          currentCol++;
-          if(currentCol >= colNum){
-            stop_Button.alpha = 0
-            spin_Button.alpha = 1;
-            buttonStatus0();
+
+    spinButton.on("pointerup", ()=>{
+      if(canClick){
+        if(buttonStatus == 0){
+            // music.play('spin');
+            setResault();
+            spinButton.alpha = 0.5;
+            buttonStatus = 3;
+            for(var i = 0;i<colNum;i++){
+              spinning[i] = true;
+            }
+            buttonStatus1();
+            // game.time.events.add(Timer.SECOND * 1, buttonStatus1, this);
+        }
+        else if(buttonStatus == 1){
+            stopButton.alpha = 1
+            buttonStatus2();
+        }
+        else if(buttonStatus == 2){
+
+          for(var i = 0;i<colNum;i++){
+            spinning[i] = false;
           }
+          stopButton.alpha = 0
+          spinButton.alpha = 1;
+          buttonStatus0();
+            // }
+        }
       }
     })
 
@@ -130,8 +144,27 @@ function create ()
 
 }
 function update(){
-
+  currentOffset++;
+  for(var i = 0;i<colNum;i++){
+    if(spinning[i] == true){
+      for(var j = 0;j<rowNum;j++){
+            potions[i][j].y=sY+mY*mY2[(j+currentOffset)%rowNum];
+      }
+    }
+    else{
+      for(var j = 0;j<rowNum;j++){
+            potions[i][j].y=sY+mY*mY2[(j+resaultOffset[i])%rowNum];
+      }
+    }
+  }
 }
+
+function setResault(){
+  for(var i = 0;i<colNum;i++){
+     resaultOffset[i] = random.integer(0,11);
+  }
+}
+
 function buttonStatus0(){
   buttonStatus = 0;
 }
