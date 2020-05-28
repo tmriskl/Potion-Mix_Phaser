@@ -15,6 +15,7 @@ var config = {
 var game = new Phaser.Game(config);
 
 var buttonStatus = 0;//to different between the button actions
+var musicButtonStatus = 0;//to different between the music button actions
 var potions = [[],[],[],[],[]];//array for the pictures in the slot machine
 var sX = 122;     //Starting point on X graph
 var sY = 143;     //Starting point on Y graph
@@ -28,11 +29,14 @@ var resaultOffset=[];   //Offset for resault position for each rows
 var random = new Phaser.Math.RandomDataGenerator();//random generator
 var canClick = false; //boolean to make the user do a full 'click'
 var currentColumn = 0; //the number of the current stoping column
+var music;
 var spinSound;
 var stopButton;
 var stop1Button;
 var spinButton;
+var musicOnButton, musicOffButton;
 var timer;
+
 function preload ()
 {
   //Loading the assets
@@ -45,25 +49,27 @@ function preload ()
     this.load.image('Stop1_Button', 'assets/button_stop1.png');
     this.load.audio('BG_music', 'assets/BG_Music.wav');
     this.load.audio('spin', 'assets/spin.wav');
-    this.load.image('BG_image', 'assets/Potion_Lab.jpg');
-    this.load.image('BG_image1', 'assets/BG_slotContainer.png');
     this.load.image('BG_image2', 'assets/BG_slotContainer2.png');
-    this.load.image('slotContainer', 'assets/slotContainer.png');
+    this.load.image('sound_on', 'assets/sound_on.png');
+    this.load.image('sound_off', 'assets/sound_off.png');
 }
 
 
 function create ()
 {
   //Adding background image and music
-    var music = game.sound.add('BG_music');
+    music = game.sound.add('BG_music');
     music.play();
     music.loop = true;
     var background = this.add.image(505, 282, 'BG_image2').setDepth(1);
 
-  //Adding and initialising slot machine and buttons
+  //Adding buttons
     stopButton = this.add.image(550, 530, 'Stop_Button').setDepth(3);
     stop1Button = this.add.image(300, 530, 'Stop1_Button').setDepth(3);
     spinButton = this.add.image(550, 530, 'Spin_Button',).setDepth(2);
+    musicOffButton = this.add.image(100, 530, 'sound_off').setDepth(3);
+    musicOnButton = this.add.image(100, 530, 'sound_on').setDepth(2);
+
 
   //setting the slots
     setResault();
@@ -121,6 +127,7 @@ function create ()
         }
       }
     });
+
 }
 
 function update(){
@@ -143,9 +150,21 @@ function setButtons(){
   stopButton.alpha = 0;
   stop1Button.alpha = 0;
   spinButton.alpha = 1;
+  musicOnButton.alpha = 1;
+  musicOffButton.alpha = 0;
 
   spinButton.setInteractive();
   stop1Button.setInteractive();
+  musicOnButton.setInteractive();
+
+  // make the user do a full 'click' on musicOnButton & musicOffButton
+  musicOnButton.on("pointerout", ()=>{
+    canClick=false;
+  })
+
+  musicOnButton.on("pointerdown", ()=>{
+    canClick=true;
+  })
 
   // make the user do a full 'click' on spinButton & stopButton
   spinButton.on("pointerout", ()=>{
@@ -170,6 +189,24 @@ function setButtons(){
     if(canClick){
       if(buttonStatus == 2){  //stopOne only works when stopAll does
         stopOne();
+      }
+    }
+  });
+
+  musicOnButton.on("pointerup", ()=>{
+    if(canClick){
+      if(musicButtonStatus == 0){
+          music.pause();
+          musicButtonStatus = 1;
+          musicOnButton.alpha = 0.1;
+          musicOffButton.alpha = 1;
+      }
+      else if(musicButtonStatus == 1){
+          music.resume();
+          musicOnButton.alpha = 1;
+          musicOffButton.alpha = 0;
+          musicButtonStatus=0;
+          currentColumn = 0;
       }
     }
   });
