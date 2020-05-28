@@ -55,14 +55,10 @@ function preload ()
 function create ()
 {
   //Adding background image and music
-
     var music = game.sound.add('BG_music');
     music.play();
     music.loop = true;
-
-    spinSound = game.sound.add('spin');
-    // music.loop = true;
-    var background = this.add.image(505, 282, 'BG_image2').setDepth(2);
+    var background = this.add.image(505, 282, 'BG_image2').setDepth(1);
 
   //Adding and initialising slot machine and buttons
     stopButton = this.add.image(550, 530, 'Stop_Button').setDepth(3);
@@ -77,6 +73,10 @@ function create ()
       }
     }
 
+    //adding spin sound
+    spinSound = game.sound.add('spin');
+
+    //setting the buttons
     setButtons();
     spinButton.on("pointerup", ()=>{
       if(canClick){
@@ -91,14 +91,14 @@ function create ()
             this.time.addEvent({
                 delay: 1000,
                 callback: ()=>{
-                  buttonStatus1();
+                  buttonStatus=1;
                 },
                 loop: false
             });
             this.time.addEvent({
                 delay: 2000,
                 callback: ()=>{
-                  timer =
+                  timer = //timer to stop slot one by one
                     this.time.addEvent({
                       delay: 1000,
                       callback: ()=>{
@@ -113,7 +113,7 @@ function create ()
         else if(buttonStatus == 1){
             stopButton.alpha = 1;
             stop1Button.alpha = 1;
-            buttonStatus2();
+            buttonStatus=2;
             currentColumn = 0;
         }
         else if(buttonStatus == 2){
@@ -124,7 +124,7 @@ function create ()
 }
 
 function update(){
-  currentOffset+=20;
+  currentOffset+=21;
   for(var i = 0;i<colNum;i++){
     if(spinning[i] == true){
       for(var j = 0;j<rowNum;j++){
@@ -147,6 +147,7 @@ function setButtons(){
   spinButton.setInteractive();
   stop1Button.setInteractive();
 
+  // make the user do a full 'click' on spinButton & stopButton
   spinButton.on("pointerout", ()=>{
     canClick=false;
   })
@@ -155,6 +156,7 @@ function setButtons(){
     canClick=true;
   })
 
+  // make the user do a full 'click' on stop1Button
   stop1Button.on("pointerout", ()=>{
     canClick=false;
   })
@@ -163,9 +165,10 @@ function setButtons(){
     canClick=true;
   })
 
+
   stop1Button.on("pointerup", ()=>{
     if(canClick){
-      if(buttonStatus == 2){
+      if(buttonStatus == 2){  //stopOne only works when stopAll does
         stopOne();
       }
     }
@@ -174,24 +177,22 @@ function setButtons(){
 
 function setResault(){
   for(var i = 0;i<colNum;i++){
-     resaultOffset[i] = random.integer(0,11);
+     resaultOffset[i] = random.integer(0,3);  //creating the resault for the slot machine
   }
 }
 
 function stopAll(){
-  for(var i = 0;i<colNum;i++){
+  for(var i = 0;i<colNum;i++){  //stop all the slots in the machine
     spinning[i] = false;
   }
   resetButtons();
 }
 
 function stopOne(){
-  spinning[currentColumn++] = false;
+  spinning[currentColumn++] = false;  //stop current slot in the machine
   if(currentColumn >= colNum){
-    currentColumn=0;
     stopAll();
     resetButtons();
-    timer.remove();
   }
 }
 
@@ -199,18 +200,8 @@ function resetButtons(){
   stopButton.alpha = 0;
   stop1Button.alpha = 0;
   spinButton.alpha = 1;
-  buttonStatus0();
+  buttonStatus=0;
   spinSound.stop();
-}
-
-function buttonStatus0(){
-  buttonStatus = 0;
-}
-
-function buttonStatus1(){
-  buttonStatus = 1;
-}
-
-function buttonStatus2(){
-  buttonStatus = 2;
+  timer.remove();
+  currentColumn=0;
 }
