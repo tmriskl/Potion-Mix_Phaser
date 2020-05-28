@@ -15,7 +15,9 @@ var config = {
 var game = new Phaser.Game(config);
 
 var buttonStatus = 0;//to different between the button actions
+    //0 spin, 1 spin disabled, 2 stop all
 var musicButtonStatus = 0;//to different between the music button actions
+    //0 music&effect, 1 only effect, 2 no music & no effects
 var potions = [[],[],[],[],[]];//array for the pictures in the slot machine
 var sX = 122;     //Starting point on X graph
 var sY = 143;     //Starting point on Y graph
@@ -34,7 +36,9 @@ var spinSound;
 var stopButton;
 var stop1Button;
 var spinButton;
-var musicOnButton, musicOffButton, musicEffectsOnButton;
+var musicOnButton;
+var musicOffButton;
+var musicEffectsOnButton;
 var timer;
 
 function preload ()
@@ -86,6 +90,7 @@ function create ()
 
     //setting the buttons
     setButtons();
+    //handeling the timers here is the best option I found
     spinButton.on("pointerup", ()=>{
       if(canClick){
         if(buttonStatus == 0){
@@ -136,7 +141,7 @@ function create ()
 }
 
 function update(){
-  currentOffset+=21;
+  currentOffset+=21;//to move the slots down
   for(var i = 0;i<colNum;i++){
     if(spinning[i] == true){
       for(var j = 0;j<rowNum;j++){
@@ -145,7 +150,7 @@ function update(){
     }
     else{
       for(var j = 0;j<rowNum;j++){
-            potions[i][j].y=sY+mY*mY2[(j+resaultOffset[i])%rowNum];
+            potions[i][j].y=sY+mY*mY2[(j+resaultOffset[i])%rowNum];//stop the slot in the resault spots
       }
     }
   }
@@ -202,27 +207,27 @@ function setButtons(){
   musicOnButton.on("pointerup", ()=>{
     if(canClick){
       if(musicButtonStatus == 0){
+          musicButtonStatus = 1;
           music.pause();
           spinSound.resume();
-          musicButtonStatus = 1;
           musicOnButton.alpha = 0.1;
           musicOffButton.alpha = 0;
           musicEffectsOnButton.alpha = 1;
       }
       else if(musicButtonStatus == 1){
+          musicButtonStatus=2;
           spinSound.pause();
           musicOnButton.alpha = 0.1;
           musicOffButton.alpha = 1;
           musicEffectsOnButton.alpha = 0;
-          musicButtonStatus=2;
       }
       else if(musicButtonStatus == 2){
+          musicButtonStatus=0;
           spinSound.resume();
           music.resume();
           musicOnButton.alpha = 1;
           musicOffButton.alpha = 0;
           musicEffectsOnButton.alpha = 0;
-          musicButtonStatus=0;
       }
     }
   });
