@@ -1,3 +1,6 @@
+I used this tutorial to make this project
+https://www.youtube.com/watch?v=GUZ8SsLQKUs
+
 # Phaser 3 Webpack Project Template
 
 A Phaser 3 Project Template

@@ -49,7 +49,7 @@ function preload ()
     this.load.image('Stop1_Button', 'assets/button_stop1.png');
     this.load.audio('BG_music', 'assets/BG_Music.wav');
     this.load.audio('spin', 'assets/spin.wav');
-    this.load.image('BG_image2', 'assets/BG_slotContainer2.png');
+    this.load.image('BG_image', 'assets/BG_slotContainer2.png');
     this.load.image('sound_on', 'assets/sound_on.png');
     this.load.image('sound_off', 'assets/sound_off.png');
     this.load.image('sound_effects_on', 'assets/sound_effects_on.png');
@@ -62,7 +62,7 @@ function create ()
     music = game.sound.add('BG_music');
     music.play();
     music.loop = true;
-    var background = this.add.image(505, 282, 'BG_image2').setDepth(1);
+    var background = this.add.image(505, 282, 'BG_image').setDepth(1);
 
   //Adding buttons
     stopButton = this.add.image(550, 530, 'Stop_Button').setDepth(3);
