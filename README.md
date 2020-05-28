@@ -1,5 +1,11 @@
-I used this tutorial to make this project
+
+The main code is src\index.js file
+
+I used this tutorial
 https://www.youtube.com/watch?v=GUZ8SsLQKUs
+
+And this template to make this project
+https://github.com/soggybag/phaser3-project-template
 
 # Phaser 3 Webpack Project Template
 
