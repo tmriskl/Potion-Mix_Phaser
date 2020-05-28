@@ -34,7 +34,7 @@ var spinSound;
 var stopButton;
 var stop1Button;
 var spinButton;
-var musicOnButton, musicOffButton;
+var musicOnButton, musicOffButton, musicEffectsOnButton;
 var timer;
 
 function preload ()
@@ -52,6 +52,7 @@ function preload ()
     this.load.image('BG_image2', 'assets/BG_slotContainer2.png');
     this.load.image('sound_on', 'assets/sound_on.png');
     this.load.image('sound_off', 'assets/sound_off.png');
+    this.load.image('sound_effects_on', 'assets/sound_effects_on.png');
 }
 
 
@@ -69,6 +70,7 @@ function create ()
     spinButton = this.add.image(550, 530, 'Spin_Button',).setDepth(2);
     musicOffButton = this.add.image(100, 530, 'sound_off').setDepth(3);
     musicOnButton = this.add.image(100, 530, 'sound_on').setDepth(2);
+    musicEffectsOnButton = this.add.image(100, 530, 'sound_effects_on').setDepth(3);
 
 
   //setting the slots
@@ -88,6 +90,9 @@ function create ()
       if(canClick){
         if(buttonStatus == 0){
             spinSound.play();
+            if(musicButtonStatus == 2){
+              spinSound.pause();
+            }
             setResault();
             spinButton.alpha = 0.5;
             buttonStatus = 3;
@@ -152,6 +157,7 @@ function setButtons(){
   spinButton.alpha = 1;
   musicOnButton.alpha = 1;
   musicOffButton.alpha = 0;
+  musicEffectsOnButton.alpha = 0;
 
   spinButton.setInteractive();
   stop1Button.setInteractive();
@@ -197,16 +203,26 @@ function setButtons(){
     if(canClick){
       if(musicButtonStatus == 0){
           music.pause();
+          spinSound.resume();
           musicButtonStatus = 1;
           musicOnButton.alpha = 0.1;
-          musicOffButton.alpha = 1;
+          musicOffButton.alpha = 0;
+          musicEffectsOnButton.alpha = 1;
       }
       else if(musicButtonStatus == 1){
+          spinSound.pause();
+          musicOnButton.alpha = 0.1;
+          musicOffButton.alpha = 1;
+          musicEffectsOnButton.alpha = 0;
+          musicButtonStatus=2;
+      }
+      else if(musicButtonStatus == 2){
+          spinSound.resume();
           music.resume();
           musicOnButton.alpha = 1;
           musicOffButton.alpha = 0;
+          musicEffectsOnButton.alpha = 0;
           musicButtonStatus=0;
-          currentColumn = 0;
       }
     }
   });
@@ -226,7 +242,8 @@ function stopAll(){
 }
 
 function stopOne(){
-  spinning[currentColumn++] = false;  //stop current slot in the machine
+  spinning[currentColumn] = false;  //stop current slot in the machine
+  currentColumn++;
   if(currentColumn >= colNum){
     stopAll();
     resetButtons();
