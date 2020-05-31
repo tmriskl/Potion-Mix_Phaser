@@ -45,9 +45,9 @@ function preload ()
 {
   //Loading the assets
     this.load.image('potion1', 'assets/potion1.png');
-    this.load.image('potion2', 'assets/potion2.png');
-    this.load.image('potion3', 'assets/potion3.png');
-    this.load.image('potion4', 'assets/potion4.png');
+    this.load.image('potion4', 'assets/potion2.png');
+    this.load.image('potion2', 'assets/potion3.png');
+    this.load.image('potion3', 'assets/potion4.png');
     this.load.image('Spin_Button', 'assets/button_spin.png');
     this.load.image('Stop_Button', 'assets/button_stop.png');
     this.load.image('Stop1_Button', 'assets/button_stop1.png');
@@ -78,7 +78,7 @@ function create ()
 
 
   //setting the slots
-    setResault();
+    setRandomResault();
     for(var i = 0;i<colNum;i++){
       for(var j = 0;j<rowNum;j++){
           potions[i][j]= this.add.image(sX+mX*i, sY+mY*mY2[(resaultOffset[i]+j)%4], 'potion'+(j+1)).setDepth(0);
@@ -98,7 +98,7 @@ function create ()
             if(musicButtonStatus == 2){
               spinSound.pause();
             }
-            setResault();
+            setFixedResault();
             spinButton.alpha = 0.5;
             buttonStatus = 3;
             for(var i = 0;i<colNum;i++){
@@ -233,9 +233,15 @@ function setButtons(){
   });
 }
 
-function setResault(){
+function setFixedResault(){//creating the resault for the slot machine
   for(var i = 0;i<colNum;i++){
-     resaultOffset[i] = random.integer(0,3);  //creating the resault for the slot machine
+     resaultOffset[i] = 0;                      //Fixed resault
+  }
+}
+
+function setRandomResault(){//creating the resault for the slot machine
+  for(var i = 0;i<colNum;i++){
+     resaultOffset[i] = random.integer(0,3);  // Random resault
   }
 }
 
